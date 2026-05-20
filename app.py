@@ -171,9 +171,7 @@ MODEL_COLORS = {
     "VGG-16":          "#EF4444",
 }
 
-# ══════════════════════════════════════════════════════════════
-# ARCHITECTURES (doivent être identiques au training)
-# ══════════════════════════════════════════════════════════════
+
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes=2):
         super().__init__()
@@ -235,9 +233,7 @@ def build_model(arch: str) -> nn.Module:
     raise ValueError(f"Modèle inconnu : {arch}")
 
 
-# ══════════════════════════════════════════════════════════════
-# CHARGEMENT DU MODÈLE (avec cache)
-# ══════════════════════════════════════════════════════════════
+
 @st.cache_resource(show_spinner=False)
 def load_model(arch: str) -> nn.Module:
     """Charge le modèle depuis le fichier .pth local."""
@@ -262,9 +258,6 @@ def load_model(arch: str) -> nn.Module:
     return model
 
 
-# ══════════════════════════════════════════════════════════════
-# INFÉRENCE
-# ══════════════════════════════════════════════════════════════
 TRANSFORM = transforms.Compose([
     transforms.Resize((IMG_SIZE, IMG_SIZE)),
     transforms.ToTensor(),
@@ -283,9 +276,7 @@ def predict(model: nn.Module, img: Image.Image):
     return CLASS_NAMES[pred_idx], float(probas[pred_idx]), probas, elapsed_ms
 
 
-# ══════════════════════════════════════════════════════════════
-# SIDEBAR
-# ══════════════════════════════════════════════════════════════
+
 with st.sidebar:
     st.markdown("""
     <div style='text-align:center; padding: 10px 0 20px;'>
@@ -370,8 +361,8 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ── Tabs ──────────────────────────────────────────────────────
-tab_infer, tab_results, tab_about = st.tabs([
-    "🔍  Inférence", "📊  Résultats & Comparaison", "📋  À propos du projet"
+tab_infer, tab_results = st.tabs([
+    "🔍  Inférence", "📊  Résultats & Comparaison"
 ])
 
 
@@ -616,110 +607,3 @@ with tab_results:
         """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════════════════════
-# TAB 3 — À PROPOS
-# ══════════════════════════════════════════════════════════════
-with tab_about:
-    col_a, col_b = st.columns([1, 1], gap="large")
-
-    with col_a:
-        st.markdown("""
-        <div style='background:#0F172A;border:1px solid #1F2937;border-radius:14px;padding:24px;margin-bottom:16px;'>
-            <div style='font-family:Space Mono,monospace;font-size:10px;color:#6B7280;
-                        text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;'>PROJET</div>
-            <div style='color:#F9FAFB;font-weight:700;font-size:16px;margin-bottom:6px;'>
-                Détection de Vol en Vidéosurveillance
-            </div>
-            <div style='color:#9CA3AF;font-size:13px;line-height:1.7;'>
-                Classification binaire d'images de caméras de surveillance 
-                pour identifier automatiquement les comportements de vol ou shoplifting.
-            </div>
-        </div>
-
-        <div style='background:#0F172A;border:1px solid #1F2937;border-radius:14px;padding:24px;margin-bottom:16px;'>
-            <div style='font-family:Space Mono,monospace;font-size:10px;color:#6B7280;
-                        text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;'>DATASET</div>
-            <div style='font-family:Space Mono,monospace;font-size:11px;color:#9CA3AF;line-height:2;'>
-                <div>📦 Source 1 : <span style='color:#3B82F6;'>pranaytlt/theft-new</span></div>
-                <div>📦 Source 2 : <span style='color:#3B82F6;'>rex-jy68d/theft-detection-ksxxh</span></div>
-                <div>🗂️ Format  : YOLO (images + labels .txt)</div>
-                <div>🔢 Total   : 9 747 images</div>
-                <div>🏷️ Classes : normal (ID=0) · theft (ID=1,2,3)</div>
-            </div>
-        </div>
-
-        <div style='background:#0F172A;border:1px solid #1F2937;border-radius:14px;padding:24px;'>
-            <div style='font-family:Space Mono,monospace;font-size:10px;color:#6B7280;
-                        text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;'>TECHNOLOGIE</div>
-            <div style='display:flex;flex-wrap:wrap;gap:8px;'>
-                {"".join([f'<span style="background:#1F2937;color:#9CA3AF;font-family:Space Mono,monospace;font-size:10px;padding:4px 10px;border-radius:4px;">{t}</span>' for t in ["PyTorch", "torchvision", "Streamlit", "Plotly", "Kaggle GPU T4", "Python 3.12"]])}
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    with col_b:
-        st.markdown("""
-        <div style='background:#0F172A;border:1px solid #1F2937;border-radius:14px;padding:24px;margin-bottom:16px;'>
-            <div style='font-family:Space Mono,monospace;font-size:10px;color:#6B7280;
-                        text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;'>MODÈLES</div>
-        """, unsafe_allow_html=True)
-
-        for name, color in MODEL_COLORS.items():
-            st.markdown(f"""
-            <div style='display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #1F293755;'>
-                <div style='width:8px;height:8px;border-radius:50%;background:{color};flex-shrink:0;'></div>
-                <span style='font-family:Space Mono,monospace;font-size:11px;color:#E5E7EB;flex:1;'>{name}</span>
-                <span style='font-family:Space Mono,monospace;font-size:10px;color:#4B5563;'>
-                    {"From scratch" if name == "Baseline CNN" else "Transfer Learning"}
-                </span>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("""
-        <div style='background:#0F172A;border:1px solid #EF444433;border-radius:14px;padding:24px;'>
-            <div style='font-family:Space Mono,monospace;font-size:10px;color:#EF4444;
-                        text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;'>DÉPLOIEMENT</div>
-            <div style='font-family:Space Mono,monospace;font-size:11px;color:#9CA3AF;line-height:2;'>
-                <div>🚀 Plateforme : <span style='color:#EF4444;'>Streamlit Cloud</span></div>
-                <div>📁 Modèles   : Google Drive (auto-download)</div>
-                <div>🔧 Config    : requirements.txt</div>
-                <div>📌 Python    : 3.10+</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # ── Guide déploiement ─────────────────────────────────────
-    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
-    with st.expander("📖 Guide de déploiement Streamlit Cloud", expanded=False):
-        st.markdown("""
-        #### 1. Préparer les fichiers
-        ```
-        ton-repo/
-        ├── app.py
-        ├── requirements.txt
-        └── models/          ← optionnel (ou Google Drive)
-        ```
-
-        #### 2. Uploader les modèles sur Google Drive
-        - Upload chaque `.pth` sur Drive
-        - Partager → "Tout le monde avec le lien"
-        - Copier l'ID (dans l'URL après `/d/`)
-        - Remplir `GDRIVE_IDS` dans `app.py`
-
-        #### 3. Déployer sur Streamlit Cloud
-        ```bash
-        # 1. Push ton repo sur GitHub
-        git add app.py requirements.txt
-        git commit -m "deploy theft detection app"
-        git push
-
-        # 2. Aller sur https://share.streamlit.io
-        # 3. New app → sélectionner ton repo
-        # 4. Main file: app.py → Deploy!
-        ```
-
-        #### 4. Variables d'environnement (optionnel)
-        Dans les Settings Streamlit Cloud, tu peux ajouter des secrets pour sécuriser les IDs Drive.
-        """)
